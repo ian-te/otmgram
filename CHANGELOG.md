@@ -5,6 +5,8 @@ MAJOR.MINOR.PATCH; while the first number is 0, anything may still change.
 
 ## Unreleased
 
+## 0.8.0 - 2026-11-02
+
 ### Added
 - Mention people in groups: type @ for the members, matching as you type; a pick puts in their @username, or their name linked to them if they have none
 - An incoming Telegram call from someone in the folder rings, with who's calling: Otmgram can't take calls, so it offers to answer in Telegram (if it's installed) or to decline; the ringing stops when the call is answered elsewhere or ends
