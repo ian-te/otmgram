@@ -146,6 +146,9 @@ internal fun InputBar(
     /** Read here, so typing recomposes only this bar, not the whole chat. */
     readText: () -> String,
     onTextChange: (String) -> Unit,
+    /** Members matching an "@…" being typed, read here too. */
+    mentions: () -> List<MentionCandidate>,
+    onMention: (MentionCandidate) -> Unit,
     composer: Composer,
     chatTitle: String,
     stickersOpen: Boolean,
@@ -159,6 +162,8 @@ internal fun InputBar(
     focus: FocusRequester,
 ) {
     val text = readText()
+    val candidates = mentions()
+    if (candidates.isNotEmpty()) MentionList(candidates, onMention)
     // Over the sticker panel, which has the navigation bar's room.
     BottomBar(overNavigationBar = !stickersOpen) {
         val banner = when (composer) {

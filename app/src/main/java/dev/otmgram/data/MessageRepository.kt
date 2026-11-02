@@ -241,8 +241,8 @@ class ChatSession internal constructor(
         }
     }
 
-    /** Sends [text] now, or at [sendAt] (Unix time) as a scheduled message. */
-    suspend fun sendText(text: String, replyToMessageId: Long? = null, sendAt: Int? = null) {
+    /** Sends [text] now, or at [sendAt] (Unix time) as a scheduled message; links and @usernames are found in it. */
+    suspend fun sendText(text: TdApi.FormattedText, replyToMessageId: Long? = null, sendAt: Int? = null) {
         send(textContent(text), replyToMessageId, sendAt)
     }
 
@@ -310,12 +310,12 @@ class ChatSession internal constructor(
         }
     }
 
-    suspend fun editText(messageId: Long, text: String) {
+    suspend fun editText(messageId: Long, text: TdApi.FormattedText) {
         td.send(TdApi.EditMessageText(chatId, messageId, null, textContent(text)))
     }
 
-    suspend fun editCaption(messageId: Long, caption: String) {
-        td.send(TdApi.EditMessageCaption(chatId, messageId, null, TdApi.FormattedText(caption, emptyArray()), false))
+    suspend fun editCaption(messageId: Long, caption: TdApi.FormattedText) {
+        td.send(TdApi.EditMessageCaption(chatId, messageId, null, caption, false))
     }
 
     /** [forEveryone] deletes the messages for all chat members, not just for you. */
@@ -573,8 +573,7 @@ class ChatSession internal constructor(
         )
     }
 
-    private fun textContent(text: String) =
-        TdApi.InputMessageText(TdApi.FormattedText(text, emptyArray()), null, true)
+    private fun textContent(text: TdApi.FormattedText) = TdApi.InputMessageText(text, null, true)
 
     private companion object {
         const val TAG = "ChatSession"

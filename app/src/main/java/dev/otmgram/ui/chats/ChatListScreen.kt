@@ -168,7 +168,15 @@ fun ChatListScreen(
         }
         val found = viewModel.found
         when {
-            searching && found != null -> FoundList(found, onOpen = onOpenMessage, onNearEnd = viewModel::loadMoreFound)
+            searching && searchText.isNotEmpty() && list != null -> FoundList(
+                chats = remember(list, searchText) { chatsMatching(list, searchText) },
+                found = found,
+                query = searchText,
+                onOpenChat = onOpenChat,
+                onChatActions = { actionsFor = it },
+                onOpen = onOpenMessage,
+                onNearEnd = viewModel::loadMoreFound,
+            )
             list == null -> LoadingScreen()
             list.isEmpty() -> Empty(stringResource(R.string.chats_empty))
             else -> LazyColumn(
@@ -192,17 +200,30 @@ fun ChatListScreen(
     }
 }
 
-/** Messages found in the folder's chats, newest first; more load near the end. */
+/**
+ * What a search finds: the folder's chats by name, at once, then messages in them, newest
+ * first ([found] is null until typing pauses); more messages load near the end.
+ */
 @Composable
-private fun FoundList(found: FoundMessages, onOpen: (chatId: Long, messageId: Long) -> Unit, onNearEnd: () -> Unit) {
+private fun FoundList(
+    chats: List<ChatItem>,
+    found: FoundMessages?,
+    query: String,
+    onOpenChat: (Long) -> Unit,
+    onChatActions: (ChatItem) -> Unit,
+    onOpen: (chatId: Long, messageId: Long) -> Unit,
+    onNearEnd: () -> Unit,
+) {
     val state = rememberLazyListState()
-    LaunchedEffect(state, found.query) {
+    LaunchedEffect(state, found?.query) {
+        if (found == null) return@LaunchedEffect
         snapshotFlow { (state.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0) >= state.layoutInfo.totalItemsCount - 5 }
             .distinctUntilChanged()
             .collect { nearEnd -> if (nearEnd) onNearEnd() }
     }
-    if (found.messages.isEmpty() && !found.loading) {
-        Empty(stringResource(R.string.search_messages_none))
+    val searched = found != null && !found.loading && found.query == query
+    if (chats.isEmpty() && searched && found.messages.isEmpty()) {
+        Empty(stringResource(R.string.search_none_here))
         return
     }
     LazyColumn(
@@ -210,11 +231,19 @@ private fun FoundList(found: FoundMessages, onOpen: (chatId: Long, messageId: Lo
         modifier = Modifier.fillMaxSize().testTag("found"),
         contentPadding = PaddingValues(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 16.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()),
     ) {
-        item(key = "label") { SectionLabel(stringResource(R.string.search_messages_label), Modifier.padding(start = 12.dp, top = 6.dp, bottom = 4.dp)) }
-        items(found.messages, key = { "${it.chat.id}/${it.messageId}" }) { message ->
-            FoundRow(message, found.query) { onOpen(message.chat.id, message.messageId) }
+        if (chats.isNotEmpty()) {
+            item(key = "chatsLabel") { SectionLabel(stringResource(R.string.search_chats_label), Modifier.padding(start = 12.dp, top = 6.dp, bottom = 4.dp)) }
+            items(chats, key = { "chat-${it.id}" }) { chat ->
+                ChatRow(chat, highlight = query, onClick = { onOpenChat(chat.id) }, onLongClick = { onChatActions(chat) })
+            }
         }
-        if (found.loading) {
+        if (found != null && found.messages.isNotEmpty()) {
+            item(key = "label") { SectionLabel(stringResource(R.string.search_messages_label), Modifier.padding(start = 12.dp, top = 6.dp, bottom = 4.dp)) }
+            items(found.messages, key = { "${it.chat.id}/${it.messageId}" }) { message ->
+                FoundRow(message, found.query) { onOpen(message.chat.id, message.messageId) }
+            }
+        }
+        if (found == null || found.loading) {
             item(key = "loading") {
                 Box(Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(Modifier.size(22.dp), color = Otm.Slate, strokeWidth = 2.dp)

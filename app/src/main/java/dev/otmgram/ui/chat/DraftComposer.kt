@@ -21,8 +21,8 @@ class DraftComposer(
     private val keep: (String) -> Unit,
     /** Sets the chat's draft on Telegram; null removes it. Must not suspend: also used as the chat goes away. */
     private val saveToTelegram: (TdApi.DraftMessage?) -> Unit,
-    /** Sends [text], already trimmed, as [mode] says; at [sendAt] (Unix time) if set. */
-    private val send: suspend (mode: Composer, text: String, sendAt: Int?) -> Unit,
+    /** Sends [text], already trimmed, with its mentions, as [mode] says; at [sendAt] (Unix time) if set. */
+    private val send: suspend (mode: Composer, text: TdApi.FormattedText, sendAt: Int?) -> Unit,
     private val onError: (Exception) -> Unit,
 ) {
     /** What's typed; here, so searching, selecting or recording keeps it. */
@@ -37,6 +37,9 @@ class DraftComposer(
 
     /** The draft as Telegram has it (text, reply), so only changes are saved. */
     private var savedDraft: Pair<String, Long?> = "" to null
+
+    /** People mentioned by name in what's typed, linked to them when it's sent. */
+    private val named = mutableListOf<NamedMention>()
 
     fun type(value: String) {
         text = value
@@ -56,6 +59,12 @@ class DraftComposer(
         replyId?.let(find)?.let { mode = Composer.Reply(it) }
     }
 
+    /** Puts [candidate] in place of the "@…" being typed. */
+    fun mention(candidate: MentionCandidate) {
+        type(insertMention(text, candidate))
+        if (candidate.username == null) named += NamedMention(candidate.userId, candidate.name)
+    }
+
     /** Saves what's typed as the chat's draft on Telegram, if it changed; on leaving the chat. */
     fun save() {
         val draftText = (if (mode is Composer.Edit) draftBeforeEdit else text).trim()
@@ -66,7 +75,7 @@ class DraftComposer(
             TdApi.DraftMessage(
                 replyId?.let { id -> TdApi.InputMessageReplyToMessage(id, null, 0, "") },
                 0,
-                TdApi.DraftMessageContentText(TdApi.FormattedText(it, emptyArray()), null),
+                TdApi.DraftMessageContentText(formatted(it), null),
                 0,
                 null,
             )
@@ -85,11 +94,14 @@ class DraftComposer(
         this.mode = Composer.New
         type(if (mode is Composer.Edit) draftBeforeEdit else "")
         val left = this.text
+        val content = formatted(text.trim())
+        val mentions = named.toList()
+        named.clear()
         // Sending clears the draft on Telegram.
         if (mode !is Composer.Edit) savedDraft = "" to null
         scope.launch {
             try {
-                send(mode, text.trim(), sendAt)
+                send(mode, content, sendAt)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -100,6 +112,7 @@ class DraftComposer(
                     if (mode is Composer.Edit) draftBeforeEdit = left
                     this@DraftComposer.mode = mode
                     type(text)
+                    named += mentions
                 }
                 onError(e)
             }
@@ -122,4 +135,6 @@ class DraftComposer(
         mode = Composer.New
         if (wasEditing) type(draftBeforeEdit)
     }
+
+    private fun formatted(text: String) = TdApi.FormattedText(text, mentionEntities(text, named))
 }

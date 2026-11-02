@@ -25,7 +25,10 @@ fun formatTime(unixTime: Int, zone: ZoneId = ZoneId.systemDefault()): String =
     Instant.ofEpochSecond(unixTime.toLong()).atZone(zone)
         .format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT))
 
-/** In the chat list: the time for today, the weekday within the last week, the date otherwise. */
+/**
+ * In the chat list: the time for today, the weekday within the last week, the date otherwise,
+ * day first ("23.10.26") whatever the phone's language.
+ */
 fun chatListDate(
     unixTime: Int,
     today: LocalDate = LocalDate.now(),
@@ -36,7 +39,7 @@ fun chatListDate(
     return when {
         dateTime.toLocalDate() == today -> dateTime.format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(locale))
         dateTime.toLocalDate().isAfter(today.minusDays(7)) -> dateTime.dayOfWeek.getDisplayName(TextStyle.SHORT, locale)
-        else -> dateTime.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT).withLocale(locale))
+        else -> dateTime.format(DAY_FIRST)
     }
 }
 
@@ -104,3 +107,5 @@ fun formatSize(bytes: Long): String = when {
     bytes >= 1_000 -> "${bytes / 1_000} KB"
     else -> "$bytes B"
 }
+
+private val DAY_FIRST = DateTimeFormatter.ofPattern("dd.MM.yy")

@@ -8,9 +8,10 @@
         <item quantity="one">%1$d chat</item>
         <item quantity="other">%1$d chats</item>
     </plurals>
-    <string name="search_messages">Find messages</string>
+    <string name="search_messages">Find chats and messages</string>
     <string name="search_messages_label">Messages</string>
-    <string name="search_messages_none">No messages with that in this folder\'s chats.</string>
+    <string name="search_chats_label">Chats</string>
+    <string name="search_none_here">No chats or messages with that in this folder.</string>
 
     <!-- Choosing the folder -->
     <string name="folder_choose_another">Choose another folder</string>

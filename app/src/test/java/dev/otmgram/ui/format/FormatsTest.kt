@@ -33,7 +33,9 @@ class FormatsTest {
     fun `the chat list shows the time today, the weekday this week, else the date`() {
         assertEquals("12:00", chatListDate(NOON_2026_10_23, friday, utc, Locale.UK))
         assertEquals("Tue", chatListDate(NOON_2026_10_23 - 3 * day, friday, utc, Locale.UK))
-        assertEquals("09/10/2026", chatListDate(NOON_2026_10_23 - 14 * day, friday, utc, Locale.UK))
+        assertEquals("09.10.26", chatListDate(NOON_2026_10_23 - 14 * day, friday, utc, Locale.UK))
+        // Day first in English (US) too, rather than 10/9/26.
+        assertEquals("09.10.26", chatListDate(NOON_2026_10_23 - 14 * day, friday, utc, Locale.US))
     }
 
     @Test

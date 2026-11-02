@@ -16,6 +16,14 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
+    <!-- Telegram's apps, to answer a call in from its notification -->
+    <queries>
+        <package android:name="org.telegram.messenger" />
+        <package android:name="org.telegram.messenger.web" />
+        <package android:name="org.thunderdog.challegram" />
+        <package android:name="org.telegram.messenger.beta" />
+    </queries>
+
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-feature android:name="android.hardware.camera.front" android:required="false" />
 
@@ -73,6 +81,9 @@
         </service>
         <receiver
             android:name=".sync.ConnectionService$Heartbeat"
+            android:exported="false" />
+        <receiver
+            android:name=".sync.CallNotifier$Decline"
             android:exported="false" />
         <receiver
             android:name=".sync.ConnectionService$Starter"

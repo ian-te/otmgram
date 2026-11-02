@@ -16,6 +16,7 @@ class DraftComposerTest {
     private val kept = mutableListOf<String>()
     private val savedToTelegram = mutableListOf<TdApi.DraftMessage?>()
     private val sent = mutableListOf<Pair<Composer, String>>()
+    private val sentFormatted = mutableListOf<TdApi.FormattedText>()
     private val errors = mutableListOf<Exception>()
     private var refuse = false
 
@@ -26,7 +27,8 @@ class DraftComposerTest {
         saveToTelegram = { savedToTelegram += it },
         send = { mode, text, _ ->
             if (refuse) error("MESSAGE_EDIT_TIME_EXPIRED")
-            sent += mode to text
+            sent += mode to text.text
+            sentFormatted += text
         },
         onError = { errors += it },
     )
@@ -40,6 +42,22 @@ class DraftComposerTest {
         replyTo?.let { TdApi.InputMessageReplyToMessage(it, null, 0, "") }, 0,
         TdApi.DraftMessageContentText(TdApi.FormattedText(text, emptyArray()), null), 0, null,
     )
+
+    @Test
+    fun `a member mentioned by name is linked to them when sent, by username it's left to Telegram`() = runTest {
+        val composer = composer()
+        composer.type("hi @le")
+        composer.mention(MentionCandidate(7, "Lea Berg", null, null, null))
+        assertEquals("hi Lea Berg ", composer.text)
+        composer.type(composer.text + "and @to")
+        composer.mention(MentionCandidate(8, "Tom", "tom_k", null, null))
+        assertEquals("hi Lea Berg and @tom_k ", composer.text)
+        composer.send()
+        runCurrent()
+        val entity = sentFormatted.single().entities.single()
+        assertEquals(3 to 8, entity.offset to entity.length)
+        assertEquals(7L, (entity.type as TdApi.TextEntityTypeMentionName).userId)
+    }
 
     @Test
     fun `what's typed is kept, except an edit's text`() = runTest {

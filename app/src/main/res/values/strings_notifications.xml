@@ -21,4 +21,15 @@
 
     <!-- Yourself, in a chat's notification -->
     <string name="notification_you">You</string>
+
+    <!-- An incoming Telegram call: Otmgram rings, but the call is answered in Telegram -->
+    <string name="calls_channel">Calls</string>
+    <string name="call_incoming">Incoming Telegram call</string>
+    <string name="call_from">%1$s is calling</string>
+    <string name="call_video_from">%1$s is video calling</string>
+    <string name="call_someone">Someone</string>
+    <string name="call_answer_in_telegram_hint">Otmgram can\'t take calls: answer in Telegram</string>
+    <string name="call_answer_elsewhere">Otmgram can\'t take calls: answer in Telegram on another device</string>
+    <string name="call_answer_in_telegram">Answer in Telegram</string>
+    <string name="call_decline">Decline</string>
 </resources>

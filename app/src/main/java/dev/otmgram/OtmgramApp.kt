@@ -13,6 +13,7 @@ import dev.otmgram.core.location.LiveLocationSharing
 import dev.otmgram.core.location.MapSnapshots
 import dev.otmgram.core.log.AppLog
 import dev.otmgram.core.td.TdClient
+import dev.otmgram.sync.CallNotifier
 import dev.otmgram.sync.CheckScheduler
 import dev.otmgram.sync.NotificationCenter
 import javax.inject.Inject
@@ -28,6 +29,9 @@ class OtmgramApp : Application(), SingletonImageLoader.Factory, Configuration.Pr
 
     @Inject
     lateinit var notifications: NotificationCenter
+
+    @Inject
+    lateinit var calls: CallNotifier
 
     @Inject
     lateinit var liveLocation: LiveLocationSharing
@@ -50,6 +54,7 @@ class OtmgramApp : Application(), SingletonImageLoader.Factory, Configuration.Pr
                 "on ${Build.MANUFACTURER} ${Build.MODEL}, Android ${Build.VERSION.RELEASE} (SDK ${Build.VERSION.SDK_INT})",
         )
         notifications.start() // Before TDLib: it sends the active notifications once, at start.
+        calls.start()
         td.start()
         checkScheduler.start()
         liveLocation.endLeftovers()

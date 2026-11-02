@@ -83,7 +83,7 @@ class ChatSessionTest {
         td.on<TdApi.SendMessage> { message(1) }
         td.on<TdApi.EditMessageSchedulingState> { TdApi.Ok() }
         val session = open()
-        session.sendText("later", sendAt = 1234)
+        session.sendText(TdApi.FormattedText("later", emptyArray()), sendAt = 1234)
         assertEquals(1234, (td.sent<TdApi.SendMessage>().single().options.schedulingState as TdApi.MessageSchedulingStateSendAtDate).sendDate)
         session.reschedule(901, sendAt = 2000)
         session.sendScheduledNow(901)

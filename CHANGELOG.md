@@ -5,6 +5,15 @@ MAJOR.MINOR.PATCH; while the first number is 0, anything may still change.
 
 ## Unreleased
 
+### Added
+- Mention people in groups: type @ for the members, matching as you type; a pick puts in their @username, or their name linked to them if they have none
+- An incoming Telegram call from someone in the folder rings, with who's calling: Otmgram can't take calls, so it offers to answer in Telegram (if it's installed) or to decline; the ringing stops when the call is answered elsewhere or ends
+
+### Changed
+- Search on the chat list finds the folder's chats by name again, as you type, above the messages it finds
+- Dates in the chat list (and on a profile's tabs) are day first, such as 23.10.26, whatever the phone's language
+- Text put in the input bar (a mention, a draft, a message to edit) leaves the cursor at its end
+
 ## 0.7.1 - 2026-10-28
 
 ### Changed

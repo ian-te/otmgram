@@ -173,6 +173,38 @@ class ChatViewModel @Inject constructor(
         },
     )
 
+    /** Members to mention while an "@…" is typed; groups only. */
+    val mentions = MentionPicker(viewModelScope) { query ->
+        if (_header.value?.isGroup != true) return@MentionPicker emptyList()
+        val myId = td.send(TdApi.GetMe()).id
+        td.send(TdApi.SearchChatMembers(chatId, query, MENTION_LIMIT, null)).members.mapNotNull { member ->
+            val userId = (member.memberId as? TdApi.MessageSenderUser)?.userId?.takeIf { it != myId } ?: return@mapNotNull null
+            when (member.status) {
+                is TdApi.ChatMemberStatusLeft, is TdApi.ChatMemberStatusBanned -> return@mapNotNull null
+                else -> Unit
+            }
+            val user = td.send(TdApi.GetUser(userId))
+            MentionCandidate(
+                userId = userId,
+                name = user.fullName().ifEmpty { return@mapNotNull null },
+                username = user.usernames?.activeUsernames?.firstOrNull(),
+                photoFileId = user.profilePhoto?.small?.id,
+                minithumbnail = user.profilePhoto?.minithumbnail?.data,
+            )
+        }
+    }
+
+    /** What's typed: to the input bar, and to the members to mention. */
+    fun type(text: String) {
+        composer.type(text)
+        mentions.update(text)
+    }
+
+    fun mention(candidate: MentionCandidate) {
+        composer.mention(candidate)
+        mentions.dismiss()
+    }
+
     /** The first unread message, to open the chat at; null once there or if none. */
     var openAt by mutableStateOf<Long?>(null)
         private set
@@ -722,3 +754,6 @@ private const val POSITION_MAX_PAGES = 4
 
 /** How long a message jumped to stays marked. */
 private const val FLASH_MS = 2_500L
+
+/** Members listed to mention, best matches first. */
+private const val MENTION_LIMIT = 20

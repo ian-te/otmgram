@@ -446,7 +446,9 @@ fun ChatScreen(
                 current != null -> RecordingBar(current, onCancel = viewModel::cancelVoice, onSend = viewModel::sendVoice)
                 else -> InputBar(
                     readText = { viewModel.composer.text },
-                    onTextChange = viewModel.composer::type,
+                    onTextChange = viewModel::type,
+                    mentions = { viewModel.mentions.candidates },
+                    onMention = viewModel::mention,
                     composer = viewModel.composer.mode,
                     chatTitle = title,
                     stickersOpen = viewModel.stickers.isOpen,

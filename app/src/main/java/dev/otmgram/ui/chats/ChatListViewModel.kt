@@ -85,7 +85,7 @@ class ChatListViewModel @Inject constructor(
 
     private val _query = MutableStateFlow("")
 
-    /** Search text; filters chats by title. */
+    /** Search text: the folder's chats by name, and messages in them. */
     val query: StateFlow<String> = _query.asStateFlow()
 
     /**
@@ -272,3 +272,7 @@ private fun FolderChat.toItem(strings: Strings) = ChatItem(
     isMuted = isMuted,
     isPinned = isPinned,
 )
+
+/** The chats whose name has [query] in it, as they're ordered in the folder. */
+internal fun chatsMatching(chats: List<ChatItem>, query: String): List<ChatItem> =
+    chats.filter { it.title.contains(query.trim(), ignoreCase = true) }
