@@ -5,6 +5,8 @@ MAJOR.MINOR.PATCH; while the first number is 0, anything may still change.
 
 ## Unreleased
 
+## 0.8.1 - 2026-11-04
+
 ### Added
 - Forwarding can hide the sender's name: the messages arrive as if sent by you, without "Forwarded from"; and for photos, videos and files with a caption, leave the captions out (which hides the sender too, as in Telegram)
 
