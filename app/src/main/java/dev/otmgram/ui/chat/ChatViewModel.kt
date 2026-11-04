@@ -142,7 +142,7 @@ class ChatViewModel @Inject constructor(
         private set
 
     /** Messages to forward, with the folder chats they can go to. */
-    var forwarding by mutableStateOf<Pair<List<Long>, List<ForwardTarget>>?>(null)
+    var forwarding by mutableStateOf<ForwardRequest?>(null)
         private set
 
     /** Unread messages when the chat was opened, for the "new since you left" line. */
@@ -704,16 +704,18 @@ class ChatViewModel @Inject constructor(
                     isSavedMessages = it.isSavedMessages,
                 )
             }
-            forwarding = ids to targets
+            // A photo, video or file with text: its caption can be left out.
+            val hasCaptions = messages.value.any { it.id in ids && it.media != null && it.text.isNotEmpty() }
+            forwarding = ForwardRequest(ids, targets, hasCaptions)
         }
     }
 
-    fun forward(target: ForwardTarget) {
-        val ids = forwarding?.first ?: return
+    fun forward(target: ForwardTarget, options: ForwardOptions = ForwardOptions()) {
+        val ids = forwarding?.messageIds ?: return
         forwarding = null
         selection.clear()
         action {
-            session.forward(ids, target.chatId)
+            session.forward(ids, target.chatId, asCopies = options.hideSender, withoutCaptions = options.hideCaptions)
             notice = strings.get(R.string.notice_forwarded, target.title)
         }
     }

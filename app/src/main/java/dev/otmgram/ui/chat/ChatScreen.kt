@@ -607,8 +607,22 @@ fun ChatScreen(
     viewModel.deleting?.let { request ->
         DeleteDialog(request, onDelete = viewModel::delete, onDismiss = viewModel::cancelDelete)
     }
-    viewModel.forwarding?.let { (_, targets) ->
-        ForwardSheet(targets, onForward = viewModel::forward, onDismiss = viewModel::cancelForward)
+    viewModel.forwarding?.let { request ->
+        // Two flags rather than the options object, which saved state can't hold.
+        var hideSender by rememberSaveable(request.messageIds) { mutableStateOf(false) }
+        var hideCaptions by rememberSaveable(request.messageIds) { mutableStateOf(false) }
+        val options = ForwardOptions(hideSender, hideCaptions)
+        ForwardSheet(
+            request.targets,
+            onForward = { viewModel.forward(it, options) },
+            onDismiss = viewModel::cancelForward,
+            options = {
+                ForwardChoices(options, request.hasCaptions) {
+                    hideSender = it.hideSender
+                    hideCaptions = it.hideCaptions
+                }
+            },
+        )
     }
 }
 

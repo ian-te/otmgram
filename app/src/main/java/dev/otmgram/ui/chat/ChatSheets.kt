@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
@@ -53,6 +54,7 @@ import dev.otmgram.ui.theme.IconBtn
 import dev.otmgram.ui.theme.Otm
 import dev.otmgram.ui.theme.OtmIcons
 import dev.otmgram.ui.theme.OtmSheet
+import dev.otmgram.ui.theme.OtmSwitch
 import dev.otmgram.ui.theme.OtmType
 import dev.otmgram.ui.theme.PillField
 import kotlin.math.roundToInt
@@ -66,6 +68,8 @@ fun ForwardSheet(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
     title: String = stringResource(R.string.forward_to),
+    /** How the messages go (sender, captions), under the title; nothing when sharing a contact. */
+    options: (@Composable () -> Unit)? = null,
 ) {
     var query by rememberSaveable { mutableStateOf("") }
     OtmSheet(onDismiss, modifier) {
@@ -73,6 +77,7 @@ fun ForwardSheet(
             Text(title, style = OtmType.BarTitle.copy(fontSize = 20.sp), color = Otm.Ink, modifier = Modifier.weight(1f))
             IconBtn(OtmIcons.Close, stringResource(R.string.close), onDismiss, tint = Otm.InkSoft)
         }
+        options?.invoke()
         PillField(
             value = query,
             onValueChange = { query = it },
@@ -99,6 +104,40 @@ fun ForwardSheet(
                 }
             }
         }
+    }
+}
+
+/**
+ * Whether forwarded messages show who sent them, and their captions. Telegram removes
+ * captions only from copies, which don't show the sender: hiding captions hides the sender
+ * too, and showing the sender brings captions back.
+ */
+@Composable
+internal fun ForwardChoices(options: ForwardOptions, hasCaptions: Boolean, onChange: (ForwardOptions) -> Unit) {
+    Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp).padding(bottom = 8.dp)) {
+        ForwardSwitch(stringResource(R.string.forward_show_sender), !options.hideSender, "forwardShowSender") { show ->
+            onChange(if (show) ForwardOptions() else options.copy(hideSender = true))
+        }
+        if (hasCaptions) {
+            ForwardSwitch(stringResource(R.string.forward_show_captions), !options.hideCaptions, "forwardShowCaptions") { show ->
+                onChange(if (show) options.copy(hideCaptions = false) else ForwardOptions(hideSender = true, hideCaptions = true))
+            }
+        }
+    }
+}
+
+@Composable
+private fun ForwardSwitch(label: String, checked: Boolean, tag: String, onChange: (Boolean) -> Unit) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .toggleable(value = checked, onValueChange = onChange, role = Role.Switch)
+            .testTag(tag)
+            .padding(vertical = 2.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(label, style = OtmType.Body, color = Otm.Ink, modifier = Modifier.weight(1f))
+        OtmSwitch(checked, onCheckedChange = null)
     }
 }
 

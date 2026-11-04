@@ -323,9 +323,12 @@ class ChatSession internal constructor(
         td.send(TdApi.DeleteMessages(chatId, messageIds.toLongArray(), forEveryone))
     }
 
-    /** Forwards messages in chat order. */
-    suspend fun forward(messageIds: List<Long>, toChatId: Long) {
-        td.send(TdApi.ForwardMessages(toChatId, null, chatId, messageIds.sorted().toLongArray(), null, false, false))
+    /**
+     * Forwards messages in chat order. [asCopies] sends them without "Forwarded from", as if
+     * sent here; copies may also leave captions out ([withoutCaptions]), which plain forwards can't.
+     */
+    suspend fun forward(messageIds: List<Long>, toChatId: Long, asCopies: Boolean = false, withoutCaptions: Boolean = false) {
+        td.send(TdApi.ForwardMessages(toChatId, null, chatId, messageIds.sorted().toLongArray(), null, asCopies, asCopies && withoutCaptions))
     }
 
     /** Sends failed messages again. */

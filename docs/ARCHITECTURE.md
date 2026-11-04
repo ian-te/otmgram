@@ -46,7 +46,7 @@ they are. For building and testing, see [DEVELOPMENT.md](DEVELOPMENT.md).
 
 ## Chats
 
-- Paged history; reply, forward (to the folder's chats only), edit (text, or the caption of photos, videos, GIFs and voice messages), delete (for me or for everyone), reactions, copy, select several. A tap on a message opens its menu, a long press starts selecting
+- Paged history; reply, forward (to the folder's chats only; with the sender's name hidden they go as copies, `forwardMessages(sendCopy)`, which may also leave captions out, `removeCaption`), edit (text, or the caption of photos, videos, GIFs and voice messages), delete (for me or for everyone), reactions, copy, select several. A tap on a message opens its menu, a long press starts selecting
 - Reactions: up to three who reacted show by face on the chip (`recentSenderIds`, when they're all of them), else the count; the menu lists who reacted with what (`getMessageAddedReactions` in groups, else the message's recent ones)
 - While the app is in the background, an open chat is closed for Telegram (`closeChat`; reopened on return), as an open chat gets all its updates, and the chat list stops reloading (`AppVisibility`); the process lives for days with Instant notifications
 - A chat opens where it was left, while the app runs (`ChatPositions`: the message at the bottom of the screen and its offset; loaded with the newest pages if it's within 4, else around it, as a jump). Left at the newest, or for the first time, it opens at the first unread message, else at the newest

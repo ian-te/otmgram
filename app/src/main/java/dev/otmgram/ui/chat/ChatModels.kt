@@ -114,6 +114,12 @@ data class DeleteRequest(
     val canDeleteForEveryone: Boolean,
 )
 
+/** How messages go when forwarded: as they are, or as copies without their sender, and their captions. */
+data class ForwardOptions(val hideSender: Boolean = false, val hideCaptions: Boolean = false)
+
+/** Messages being forwarded, the folder chats they can go to, and whether any has a caption to leave out. */
+data class ForwardRequest(val messageIds: List<Long>, val targets: List<ForwardTarget>, val hasCaptions: Boolean)
+
 data class ForwardTarget(
     val chatId: Long,
     val title: String,

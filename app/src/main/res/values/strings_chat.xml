@@ -59,6 +59,8 @@
     <string name="quote">“%1$s”</string>
     <string name="delete_for_everyone">Also delete for everyone</string>
     <string name="forward_to">Forward to</string>
+    <string name="forward_show_sender">Show sender\'s name</string>
+    <string name="forward_show_captions">Show captions</string>
     <string name="find_chat">Find a chat</string>
     <string name="attach_gallery">Gallery</string>
     <string name="attach_file">File</string>

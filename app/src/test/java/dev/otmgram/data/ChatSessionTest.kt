@@ -285,6 +285,20 @@ class ChatSessionTest {
     }
 
     @Test
+    fun `without the sender, messages go as copies, and only copies leave captions out`() = runTest {
+        td.on<TdApi.ForwardMessages> { messages() }
+        val session = open()
+        session.forward(listOf(10), toChatId = 7)
+        session.forward(listOf(10), toChatId = 7, asCopies = true)
+        session.forward(listOf(10), toChatId = 7, asCopies = true, withoutCaptions = true)
+        session.forward(listOf(10), toChatId = 7, withoutCaptions = true)
+        assertEquals(
+            listOf(false to false, true to false, true to true, false to false),
+            td.sent<TdApi.ForwardMessages>().map { it.sendCopy to it.removeCaption },
+        )
+    }
+
+    @Test
     fun `deleting for everyone asks TDLib to revoke`() = runTest {
         td.on<TdApi.DeleteMessages> { TdApi.Ok() }
         val session = open()
