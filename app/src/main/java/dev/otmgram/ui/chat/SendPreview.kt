@@ -73,6 +73,7 @@ import dev.otmgram.ui.theme.OtmIcons
 import dev.otmgram.ui.theme.OtmSwitch
 import dev.otmgram.ui.theme.OtmType
 import dev.otmgram.ui.theme.PillField
+import dev.otmgram.ui.theme.ProseKeyboard
 import dev.otmgram.ui.theme.paper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
@@ -363,6 +364,7 @@ private fun SendPreview(
                     placeholder = stringResource(R.string.caption),
                     maxLines = 4,
                     bordered = true,
+                    keyboardOptions = ProseKeyboard,
                     modifier = Modifier.weight(1f).testTag(captionTag),
                 )
                 IconBtn(OtmIcons.Send, stringResource(R.string.send), { onSend(caption) }, tint = Color.White, background = Otm.Slate, tag = sendTag)

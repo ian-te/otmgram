@@ -42,6 +42,7 @@ import dev.otmgram.ui.theme.OtmType
 import dev.otmgram.ui.theme.PillField
 import dev.otmgram.ui.theme.PillHeight
 import dev.otmgram.ui.theme.PillShape
+import dev.otmgram.ui.theme.ProseKeyboard
 import dev.otmgram.ui.theme.ScreenBarFrame
 import dev.otmgram.ui.theme.SoftButton
 
@@ -200,6 +201,7 @@ internal fun InputBar(
                 placeholder = if (chatTitle.isEmpty()) stringResource(R.string.composer_message) else stringResource(R.string.composer_write_to, chatTitle),
                 maxLines = 5,
                 bordered = true,
+                keyboardOptions = ProseKeyboard,
                 trailing = {
                     IconBtn(
                         if (stickersOpen) OtmIcons.Keyboard else OtmIcons.Smile,

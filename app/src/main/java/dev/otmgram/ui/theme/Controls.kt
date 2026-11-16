@@ -47,6 +47,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
@@ -306,6 +307,9 @@ fun Chip(text: String, selected: Boolean, onClick: () -> Unit, modifier: Modifie
 val PillShape = RoundedCornerShape(22.dp)
 val PillHeight = 44.dp
 
+/** For fields people write sentences in (a message, a caption): the keyboard capitalises their start. */
+val ProseKeyboard = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
+
 /**
  * A field in [PillShape]: the input bar, find in chat, a caption, finding a chat. [bordered]
  * gives it a hairline, where it sits on a bar of its own colour.
@@ -320,6 +324,7 @@ fun PillField(
     maxLines: Int = 1,
     background: Color = Otm.Card,
     bordered: Boolean = false,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     leading: @Composable (() -> Unit)? = null,
     trailing: @Composable (() -> Unit)? = null,
 ) {
@@ -331,6 +336,7 @@ fun PillField(
         textStyle = textStyle,
         singleLine = maxLines == 1,
         maxLines = maxLines,
+        keyboardOptions = keyboardOptions,
         shape = PillShape,
         height = PillHeight,
         background = background,

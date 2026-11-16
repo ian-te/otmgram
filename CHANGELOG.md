@@ -5,6 +5,9 @@ MAJOR.MINOR.PATCH; while the first number is 0, anything may still change.
 
 ## Unreleased
 
+### Fixed
+- The keyboard starts a message (and a photo's or video's caption) with a capital letter, as in Telegram
+
 ## 0.8.1 - 2026-11-04
 
 ### Added
